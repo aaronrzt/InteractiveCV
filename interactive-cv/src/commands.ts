@@ -1,13 +1,27 @@
 // src/terminal/commands.ts
 
-import { experience, education, skills } from "./data/cvEntries";
+import { experience, education, skills, contactInfo, leadershipActivities, projects } from "./data/cvEntries";
 import {
   formatExperience,
   formatEducation,
+  formatContactInfo,
+  formatLeadership,
+  formatProjects,
   formatSkills
 } from "./format";
 
 export type CommandHandler = () => string;
+
+export const COMMANDS = [
+  "clear",
+  "contact",
+  "education",
+  "experience",
+  "help",
+  "leadership",
+  "projects",
+  "skills"
+];
 
 export const commands: Record<string, CommandHandler> = {
   help: () =>
@@ -22,9 +36,11 @@ Available commands:
   projects       Show project history
   skills         Show skill categories
 `,
-
+  contact: () => formatContactInfo(contactInfo),
   experience: () => formatExperience(experience),
   education: () => formatEducation(education),
+  leadership: () => formatLeadership(leadershipActivities),
+  projects: () => formatProjects(projects),
   skills: () => formatSkills(skills)
 };
 
@@ -39,5 +55,5 @@ export function runCommand(cmd: string): string {
     return commands[trimmed]();
   }
 
-  return `Command not found: ${trimmed}\Use "help" to see a list of all available commands.`;
+  return `Command not found: ${trimmed}\nUse "help" to see a list of all available commands.`;
 }

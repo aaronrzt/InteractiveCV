@@ -3,7 +3,7 @@ import { Terminal as XTerm } from "xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import "xterm/css/xterm.css";
 
-import { runCommand } from "./commands";
+import { runCommand, COMMANDS } from "./commands";
 
 const PROMPT =
   "\x1b[32muser\x1b[32m@" +
@@ -42,7 +42,36 @@ export default function Terminal() {
 
     term.onKey(({ key, domEvent }) => {
       const { keyCode } = domEvent;
+if (keyCode === 9) {
+  domEvent.preventDefault();
 
+  if (buffer.length > 0) {
+    const matches = COMMANDS.filter(cmd => cmd.startsWith(buffer));
+
+    if (matches.length === 1) {
+      // Replace buffer with the matched command
+      const completion = matches[0];
+
+      // Erase current buffer
+      while (buffer.length > 0) {
+        term.write("\b \b");
+        buffer = buffer.slice(0, -1);
+      }
+
+      // Write full command
+      buffer = completion;
+      term.write(completion);
+    }  else if (matches.length > 1) {
+      // Multiple matches → list them
+      term.write("\r\n"); // move to new line
+      term.write(matches.join("    ") + "\r\n"); // list all matches
+
+      // Reprint the buffer so user can continue typing
+      term.write(buffer);
+    }
+  }
+  return;
+}
       if (keyCode === 13) {
         const output = runCommand(buffer);
         term.write("\r\n");
